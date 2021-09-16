@@ -24,4 +24,4 @@ world$world <- monthlyReturn(world)*100
 sp$sp <- monthlyReturn(sp)*100
 
 etorocopy <- merge(etorocopy, nasdaq$nasdaq, world$world, sp$sp, join = "left")
-etorocopy <- etorocopy[-1]
+etorocopy <- etorocopy[,-1]
