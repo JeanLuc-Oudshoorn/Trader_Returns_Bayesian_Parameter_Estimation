@@ -38,3 +38,8 @@ for(i in 1:15){
 for(i in 1:15){
   plot(bayes_fitsp[[i]], main = paste(traders[i], "performance vs. S&P 500"))
 }
+
+detorocopy %>%
+  select(1, 2, 3, 5, 10, 12, 15:18) %>%
+  na.omit() %>%
+  cor()
