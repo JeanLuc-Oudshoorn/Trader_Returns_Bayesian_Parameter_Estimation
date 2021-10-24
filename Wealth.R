@@ -14,10 +14,11 @@ wealth <- function(principal = 53000, return = 1.20, inflation = 0.02, years = 2
       }
     for(i in 1:nrow(df)){
     df$gain[i] <- df$value[i]-df$value[(i-1)]
+    }
     print(round(df, 0))
     print(paste("Inflation-adjusted millionaire after", min(which(df$value > 1000000)), "years!"))
     print(paste("You can safely stop working after", min(which(df$gain > 100000)), "years!"))
     plot(df$value, type = "l", col = "goldenrod")
     abline(h = 1000000, col = "lightgray")
-    }
+    
 }
