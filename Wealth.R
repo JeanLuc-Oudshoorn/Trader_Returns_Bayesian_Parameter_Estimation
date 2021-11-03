@@ -1,7 +1,7 @@
 wealth <- function(principal = 50000, return = 1.20, inflation = 0.02, years = 21){
     df <- data.frame(year = 1:(years+1), value = rep(principal, years+1), amount = rep(0, years+1),  tax = rep(0, years+1), ctax = rep(0, years+1), taxperct = rep(0, years+1), portf = rep(0, years + 1))
     for (i in 2:years){
-      df$amount[i] <- df$value[(i-1)] * (return * (1-inflation))^(1)
+      df$amount[i] <- df$value[(i-1)] * (return * (1-inflation))
       df$portf[i] <- principal * (return * (1 - inflation))^(i-1)
           if(df$amount[i] <= 50000){
             df$tax[i] <- 0
@@ -22,10 +22,10 @@ wealth <- function(principal = 50000, return = 1.20, inflation = 0.02, years = 2
     rdf <- round(df[,-6], 0)
     taxperct <- round(df$taxperct, 2)
     rdf <- cbind(rdf, taxperct)
-    print(rdf[1:years,])
+    print(rdf[1:years, -3])
     print(paste("Inflation-adjusted millionaire after", min(which(df$value > 1000000))-1, "years!"))
     print(paste("You can safely stop working after", min(which(gain > 100000)), "years!"))
-    print(paste0("Total percent of portfolio value payed in taxes: ", max(taxperct), "%"))
+    print(paste0("Total percent of portfolio value lost due to taxes: ", max(taxperct), "%"))
     plot(df$value[-length(df$value)], type = "l", col = "goldenrod")
     abline(h = 1000000, col = "lightgray")
 }
