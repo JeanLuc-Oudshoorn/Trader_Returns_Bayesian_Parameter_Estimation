@@ -8,7 +8,7 @@ fit <- data.frame(df = rep(0, 17), mean = rep(0, 17), sd = rep(0,17))
 ses <- data.frame(dfs = rep(0, 17), means = rep(0, 17), sds = rep(0,17))
 output <- c()
 
-
+## 1.) Fit T-distributions to log return data on the basis of maximum likelihood
 for (i in 1:ncol(popreturn)){
   
   output <- fitdist(as.vector(na.omit(coredata(popreturn[,i]))), "t.scaled",
@@ -19,7 +19,7 @@ for (i in 1:ncol(popreturn)){
   fit[i,] <- output$estimate
   ses[i,] <- output$sd
  
-
+## 2.) Fit a log-normal distribution if the T-fit result contains a very high number of degrees of freedom (>100)
  if(fit$df[i]>100){
       output <- fitdist(as.vector(na.omit(coredata(popreturn[,i]))), "norm")
       print(output)
@@ -37,7 +37,7 @@ rownames(ses) <- names
 
 fit <- cbind(fit, ses)
 
-
+## 3.) Sample 10,000 observations from the most likely distributions with variability
 samples <- matrix(nrow = 10000, ncol = 17)
 
 for(i in 1:nrow(fit)){
@@ -51,7 +51,7 @@ for(i in 1:nrow(fit)){
   }
 }  
 
-
+## 4.) Generate a table of performance metrics based on the large sample
 colnames(samples) <- rownames(fit)
 
 metrics <- as.data.frame(matrix(nrow = 17, ncol = 8))
@@ -65,6 +65,8 @@ for (i in 1:17){
 
 metrics <- round(metrics[1:17,], 3)
 
+
+## 5.) Wrangle the sample data to plot density functions
 samples <- as.data.frame(samples)
 
 long_samples <- pivot_longer(samples, cols = 1:17, names_to = "trader", values_to = "return")
