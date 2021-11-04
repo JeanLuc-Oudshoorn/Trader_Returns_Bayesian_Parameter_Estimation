@@ -4,6 +4,8 @@ library(dplyr)
 library(quantmod)
 library(xts)
 
+
+## 1.) Fetching the Nasdaq and S&P500 returns from Yahoo Finance
 nasdaq <- getSymbols(Symbols = "^IXIC", src = "yahoo", auto.assign = FALSE)
 sp <- getSymbols(Symbols = "^GSPC", src = "yahoo", auto.assign = FALSE)
 
@@ -15,7 +17,7 @@ sp <- sp["2013-07/2021-10"]
 
 idx <- index(nasdaq)
 
-
+## 2.) Defining links to websites that contain return data for the popular investors
 links <- c("https://factsheets.fundpeak.com/Report/473D3034AE5913E912265730BE689D6D707FA111F2B061DB4F473B892D69F1EAC3B08304018D5E90",
            "https://factsheets.fundpeak.com/Report/473D3034AE5913E9896E0F6384B3ED10F5C2E5DBF7C6F06EF188F31677E4633FE79D364DFB1B1FE4",
            "https://factsheets.fundpeak.com/Report/473D3034AE5913E9109B162D8ECFD3118D9D19EEB8B95D54F5B6B838F06055C79FC4C2F0D769E225",
@@ -35,25 +37,19 @@ links <- c("https://factsheets.fundpeak.com/Report/473D3034AE5913E912265730BE689
 
 traderreturns <- list()
 
+## 3.) Scraping and cleaning return values of popular investors from the website links
 for(i in 1:length(links)){
 
-link <- read_html(links[i])
+  link <- read_html(links[i])
     
-txt <- link %>%
-  html_nodes(xpath = '//*[@id="ctl00_ctl00_Body_PageBody_ctl00_Panel1"]/div/div[2]/div[3]/div/div/table') %>%
-  html_text() %>%
-  str_extract_all("-?[0-9]{1,3}\\.[0-9]{2}") %>%
-  unlist() %>%
-  as.numeric()
-  
-anti <- link %>%
-  html_nodes(xpath = '//*[@class = "monthlyTotal"]') %>%
-  html_text() %>%
-  unlist() %>%
-  as.numeric()
+      txt <- link %>%
+        html_nodes(xpath = '//*[@class = "monthlyPerf"]') %>%
+        html_text() %>%
+        str_extract_all("-?[0-9]+\\.[0-9]{2}") %>%
+        unlist() %>%
+        as.numeric()
 
-txt <- txt[!(txt %in% anti)]
-
+## 4.) Reordering the returns and generating XTS-objects using the Nasdaq Index
 l <- length(txt)
 
 reorder <- c(10:1, 22:11, 34:23, 46:35, 58:47, 70:59, 82:71, 94:83, 106:95)
@@ -64,6 +60,7 @@ traderreturns[[i]] <- xts(txt, order.by = rev(idx)[1:l])
 
 }
 
+## 5.) Calculating monthly returns for the Nasdaq and S&P 500 and merging them together with the popular investor returns into a single XTS-object
 traderreturns[[16]] <- round(monthlyReturn(nasdaq)*100,2)
 traderreturns[[17]] <- round(monthlyReturn(sp)*100,2)
 
@@ -72,3 +69,29 @@ popinvestor <- Reduce(merge, traderreturns)
 popinvestor <- round(popinvestor,2)
 colnames(popinvestor) <- c("jeppe", "mariano", "victor", "jurgen", "reinhardt", "martina", "wesley", "heloise",
                            "kieran", "harry", "richard", "lena", "eddy", "teoh", "libor", "nasdaq", "sp")
+
+
+## 6.) Creating a separate matrix detailing total portfolio value by month based on monthly percentage returns 
+tradervalue <- traderreturns
+
+for (i in 1:length(traderreturns)){
+  
+    for (j in 1:length(traderreturns[[i]])){
+        
+      if(j == 1){
+      tradervalue[[i]][j] <- (1 + (traderreturns[[i]][j]/100))*1000
+      } else {
+      tradervalue[[i]][j] <- coredata(tradervalue[[i]][(j - 1)]) * (1 + (coredata(traderreturns[[i]][j])/100))
+      }
+    }
+}
+
+popvalue <- Reduce(merge, tradervalue)
+
+popvalue <- round(popvalue, 2)
+colnames(popvalue) <- c("jeppe", "mariano", "victor", "jurgen", "reinhardt", "martina", "wesley", "heloise",
+                        "kieran", "harry", "richard", "lena", "eddy", "teoh", "libor", "nasdaq", "sp")
+
+## 7.) Using the portfolio value matrix to calculate log returns instead of percentage returns 
+popreturn <- diff(log(popvalue))
+
