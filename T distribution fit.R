@@ -16,6 +16,7 @@ for (i in 1:ncol(popreturn)){
                                  mean = mean(na.omit(coredata(popreturn[,i]))),
                                  sd = sd(na.omit(coredata(popreturn[,i]))))) 
   print(output)
+  qqcomp(list(output))
   fit[i,] <- output$estimate
   ses[i,] <- output$sd
  
@@ -29,7 +30,6 @@ for (i in 1:ncol(popreturn)){
       ses$sds[i] <- output$sd[2]
   }
 }
-
 
 names <- colnames(popreturn)
 rownames(fit) <- names
