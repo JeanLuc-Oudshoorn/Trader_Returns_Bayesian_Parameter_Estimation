@@ -95,5 +95,12 @@ long_samples[sub_3,]
     xlim(-0.2, 0.2) +
     ylim(0, 21)
 
+sub_4 <- long_samples$trader %in% unique(long_samples$trader)[c(1, 3, 5, 10)]
+long_samples[sub_3,]
+  
+  ggplot(long_samples[sub_4,], aes(x = return, color = trader)) +
+    geom_density() +
+    xlim(-0.2, 0.2) +
+    ylim(0, 21)
   
   
