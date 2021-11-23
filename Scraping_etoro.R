@@ -32,7 +32,11 @@ links <- c("https://factsheets.fundpeak.com/Report/473D3034AE5913E912265730BE689
            "https://factsheets.fundpeak.com/Report/473D3034AE5913E9B18346822950C65DB5D196E9CBEA145B4D7248CE5F16967163EA226B72DFB592",
            "https://factsheets.fundpeak.com/Report/473D3034AE5913E9CB05597DFCB158425A194070CCEFAB3A5BAAAC04897205F77CCD820C8162F0A4",
            "https://factsheets.fundpeak.com/Report/473D3034AE5913E9896E0F6384B3ED10A5D1C8B25061C87E70CC0E319A51387C05C37EDE5020FCDC",
-           "https://factsheets.fundpeak.com/Report/473D3034AE5913E9896E0F6384B3ED106AC444D5B6E675BDA300E7B2858FA2233356598E13CD0646")
+           "https://factsheets.fundpeak.com/Report/473D3034AE5913E9896E0F6384B3ED106AC444D5B6E675BDA300E7B2858FA2233356598E13CD0646",
+           "https://factsheets.fundpeak.com/Report/473D3034AE5913E9AE9176B8F5330F049D564864669CA046BB71729B8EB3FA9765B174D7944AC225",
+           "https://factsheets.fundpeak.com/Report/473D3034AE5913E9C30047171818581C070F5FCC81CC1E9AC850B0D2D980B3B140C2B556846A56DF",
+           "https://factsheets.fundpeak.com/Report/473D3034AE5913E9B18346822950C65DB378C89AF3391DB6358F464D5D07E9B627BAF97862968BA8",
+           "https://factsheets.fundpeak.com/Report/473D3034AE5913E98EB115FA8224524D5DA9755AD76C3D3ADE8BC7078DBADE2B2036981639F6A6FC")
 
 
 traderreturns <- list()
@@ -61,14 +65,14 @@ traderreturns[[i]] <- xts(txt, order.by = rev(idx)[1:l])
 }
 
 ## 5.) Calculating monthly returns for the Nasdaq and S&P 500 and merging them together with the popular investor returns into a single XTS-object
-traderreturns[[16]] <- round(monthlyReturn(nasdaq)*100,2)
-traderreturns[[17]] <- round(monthlyReturn(sp)*100,2)
+traderreturns[[(length(links)+1)]] <- round(monthlyReturn(nasdaq)*100,2)
+traderreturns[[(length(links)+2)]] <- round(monthlyReturn(sp)*100,2)
 
 popinvestor <- Reduce(merge, traderreturns)
 
 popinvestor <- round(popinvestor,2)
 colnames(popinvestor) <- c("jeppe", "mariano", "victor", "jurgen", "reinhardt", "martina", "wesley", "heloise",
-                           "kieran", "harry", "richard", "lena", "eddy", "teoh", "libor", "nasdaq", "sp")
+                           "kieran", "harry", "richard", "lena", "eddy", "teoh", "libor", "emanuel", "christian", "alderique", "guillaime", "nasdaq", "sp")
 
 
 ## 6.) Creating a separate matrix detailing total portfolio value by month based on monthly percentage returns 
@@ -90,7 +94,7 @@ popvalue <- Reduce(merge, tradervalue)
 
 popvalue <- round(popvalue, 2)
 colnames(popvalue) <- c("jeppe", "mariano", "victor", "jurgen", "reinhardt", "martina", "wesley", "heloise",
-                        "kieran", "harry", "richard", "lena", "eddy", "teoh", "libor", "nasdaq", "sp")
+                        "kieran", "harry", "richard", "lena", "eddy", "teoh", "libor", "emanuel", "christian", "alderique", "guillaime", "nasdaq", "sp")
 
 ## 7.) Using the portfolio value matrix to calculate log returns instead of percentage returns 
 popreturn <- diff(log(popvalue))
