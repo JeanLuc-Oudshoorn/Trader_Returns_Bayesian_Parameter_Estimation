@@ -1,11 +1,10 @@
-library(dplyr)
-library(tidyr)
+library(tidyverse)
 library(xts)
 library(fitdistrplus)
 library(metRology)
 
-fit <- data.frame(df = rep(0, 17), mean = rep(0, 17), sd = rep(0,17))
-ses <- data.frame(dfs = rep(0, 17), means = rep(0, 17), sds = rep(0,17))
+fit <- data.frame(df = rep(0, 21), mean = rep(0, 21), sd = rep(0, 21))
+ses <- data.frame(dfs = rep(0, 21), means = rep(0, 21), sds = rep(0, 21))
 output <- c()
 
 ## 1.) Fit T-distributions to log return data on the basis of maximum likelihood
@@ -38,12 +37,12 @@ rownames(ses) <- names
 fit <- cbind(fit, ses)
 
 ## 3.) Sample 10,000 observations from the most likely distributions with variability
-samples <- matrix(nrow = 10000, ncol = 17)
+samples <- matrix(nrow = 10000, ncol = 21)
 
 for(i in 1:nrow(fit)){
   if(fit$df[i] < 100){
     
-    samples[,i] <-  (rt(10000, df =  fit$df[i]) *
+    samples[,i] <-  (rt(10000, df = fit$df[i]) *
                         rnorm(10000, fit$sd[i], fit$sds[i]) + 
                         rnorm(10000, fit$mean[i], fit$means[i]))
   } else {
@@ -54,22 +53,22 @@ for(i in 1:nrow(fit)){
 ## 4.) Generate a table of performance metrics based on the large sample
 colnames(samples) <- rownames(fit)
 
-metrics <- as.data.frame(matrix(nrow = 17, ncol = 8))
+metrics <- as.data.frame(matrix(nrow = 21, ncol = 8))
 rownames(metrics) <- colnames(samples)
 colnames(metrics) <- c("99%", "VaR", "70%", "50%", "20%", "5%", "1%", "ExpPos")
 
-for (i in 1:17){
+for (i in 1:21){
   metrics[i,] <- quantile(samples[,i], c(0.01, 0.05, 0.3, 0.5, 0.8, 0.95, 0.99, 1))
   metrics$ExpPos[i] <- sum(samples[,i] > 0)/length(samples[,i])*100
 }
 
-metrics <- round(metrics[1:17,], 3)
-
+metrics <- round(metrics[1:21,], 3)
+print(metrics)
 
 ## 5.) Wrangle the sample data to plot density functions
 samples <- as.data.frame(samples)
 
-long_samples <- pivot_longer(samples, cols = 1:17, names_to = "trader", values_to = "return")
+long_samples <- pivot_longer(samples, cols = 1:21, names_to = "trader", values_to = "return")
 
 sub_1 <- long_samples$trader %in% unique(long_samples$trader)[1:6]
 long_samples[sub_1,]
@@ -87,7 +86,7 @@ long_samples[sub_2,]
     xlim(-0.2, 0.2) +
     ylim(0, 21)
   
-sub_3 <- long_samples$trader %in% unique(long_samples$trader)[12:17]
+sub_3 <- long_samples$trader %in% unique(long_samples$trader)[12:16]
 long_samples[sub_3,]
   
   ggplot(long_samples[sub_3,], aes(x = return, color = trader)) +
@@ -95,12 +94,19 @@ long_samples[sub_3,]
     xlim(-0.2, 0.2) +
     ylim(0, 21)
 
-sub_4 <- long_samples$trader %in% unique(long_samples$trader)[c(1, 3, 5, 10)]
-long_samples[sub_3,]
+sub_4 <- long_samples$trader %in% unique(long_samples$trader)[17:21]
+long_samples[sub_4,]
   
   ggplot(long_samples[sub_4,], aes(x = return, color = trader)) +
     geom_density() +
     xlim(-0.2, 0.2) +
     ylim(0, 21)
   
+sub_5 <- long_samples$trader %in% unique(long_samples$trader)[c(1, 10, 19, 16)]
+long_samples[sub_5,]
+  
+  ggplot(long_samples[sub_5,], aes(x = return, color = trader)) +
+    geom_density() +
+    xlim(-0.3, 0.3) +
+    ylim(0, 10)
   
