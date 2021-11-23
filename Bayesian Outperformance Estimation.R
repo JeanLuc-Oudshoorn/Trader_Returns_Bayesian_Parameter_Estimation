@@ -5,9 +5,9 @@ bayes_fit <- list()
 bayes_fitsp <- list()
 
 ## 1.) Estimate outperformance of log returns vs NASDAQ
-for(i in 1:15){
+for(i in 1:19){
     df <- as.data.frame(popreturn) %>%
-      select(i, nasdaq) %>%
+      dplyr::select(i, nasdaq) %>%
       na.omit() 
   
   BESTout <- BESTmcmc(df[,1], df$nasdaq)
@@ -21,14 +21,14 @@ for(i in 1:15){
 traders <- colnames(popreturn)
 par(mfrow = c(2, 2))
 
-for(i in 1:15){
+for(i in 1:19){
    plot(bayes_fit[[i]], main = paste(traders[i], "performance vs. nasdaq"))
   }
 
 ## 3.) Estimate outperformance of log returns vs S&P500
-for(i in 1:15){
+for(i in 16:19){
   df <- as.data.frame(popreturn) %>%
-    select(i, sp) %>%
+    dplyr::select(i, sp) %>%
     na.omit() 
   
   BESTout <- BESTmcmc(df[,1], df$sp)
@@ -39,15 +39,15 @@ for(i in 1:15){
 }
 
 ## 4.) Plot outperformance against S&P500
-for(i in 1:15){
+for(i in 16:19){
   plot(bayes_fitsp[[i]], main = paste(traders[i], "performance vs. S&P 500"))
 }
 
 
 ## 5.) Create a correlation matrix of returns of popular investors and those of indices
-cormatrix <- matrix(nrow = 15, ncol = 2) 
+cormatrix <- matrix(nrow = 19, ncol = 2) 
 
-for(i in 1:15){
+for(i in 1:19){
   correl <- as.data.frame(popreturn) %>%
                   select(i, nasdaq) %>%
                   na.omit() %>%
@@ -63,4 +63,4 @@ cormatrix[i, 2] <- correl[1,2]
 
 colnames(cormatrix) <- c("nasdaq", "s&p500")
 rownames(cormatrix) <- c("jeppe", "mariano", "victor", "jurgen", "reinhardt", "martina", "wesley", "heloise",
-                         "kieran", "harry", "richard", "lena", "eddy", "teoh", "libor")
+                         "kieran", "harry", "richard", "lena", "eddy", "teoh", "libor", "emanuel", "christian", "alderique", "guillaime")
